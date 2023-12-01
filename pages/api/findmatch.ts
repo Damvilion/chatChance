@@ -13,6 +13,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
         io.on('connection', (socket: Socket) => {
             console.log('A client conected');
+            socket.on('message', (msg) => {
+                socket.broadcast.emit('text', msg);
+            });
         });
     }
     res.end();
