@@ -22,9 +22,9 @@ const Page = () => {
     };
     pusherClient.subscribe('online_users');
 
-    useEffect(() => {
-        getTotalPlayers();
-    }, []);
+    // useEffect(() => {
+    //     getTotalPlayers();
+    // }, []);
 
     return (
         <div>
