@@ -13,7 +13,13 @@ export async function GET(request: Request) {
         if (res.status === 200) {
             const body = await res.json();
             const channelsInfo = body.channels;
-            return NextResponse.json({ body, channelsInfo });
+            return NextResponse.json({
+                body,
+                channelsInfo,
+                headers: {
+                    'Cache-Control': 'no-cache', // Example: Disables caching
+                },
+            });
         }
     } catch (error) {
         console.error('Error:', error);
