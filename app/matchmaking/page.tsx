@@ -24,6 +24,7 @@ const Page = () => {
         <div>
             <h1>Page</h1>
             <p>There are {players} Online!</p>
+            <button onClick={getTotalPlayers}>Get Players</button>
         </div>
     );
 };
