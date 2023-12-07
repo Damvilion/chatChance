@@ -7,24 +7,22 @@ export async function GET(request: Request) {
     // All Online users will subscribe to this channel
     const channels = ['online_users'];
 
-    try {
-        const res = await pusherServer.trigger(channels, 'get-total-users', { message: 'Hello World' }, { info: attributes });
+    const res = await pusherServer.trigger(channels, 'get-total-users', { message: 'Hello World' }, { info: attributes });
 
-        if (res.status === 200) {
-            const body = await res.json();
-            const channelsInfo = body.channels;
-            return NextResponse.json({
-                body,
-                channelsInfo,
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    Pragma: 'no-cache',
-                    Expires: '0',
-                },
-            });
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        return NextResponse.json({ error: 'Error triggering event' });
+    if (res.status === 200) {
+        const body = await res.json();
+        const channelsInfo = body.channels;
+
+        return NextResponse.json({
+            body,
+            channelsInfo,
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                Pragma: 'no-cache',
+                Expires: '0',
+            },
+        });
+    } else {
+        return NextResponse.json({ message: 'Failed' });
     }
 }

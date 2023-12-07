@@ -2,11 +2,17 @@
 import React, { useEffect, useState } from 'react';
 import { pusherClient } from '@/app/lib/pusher';
 import axios from 'axios';
+import { config } from 'process';
 
 const Page = () => {
     const [players, setPlayers] = useState<number | string>(0);
     const getTotalPlayers = async () => {
-        const res = await axios.get('/api/getTotalPlayers');
+        const res = await axios.get('/api/getTotalPlayers', {
+            headers: {
+                'Cache-Control': 'no-cache',
+                Pragma: 'no-cache',
+            },
+        });
         console.log(res);
         if (!res) {
             setPlayers('Error finding number of user');
