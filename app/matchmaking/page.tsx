@@ -18,9 +18,6 @@ const Page = () => {
 
     useEffect(() => {
         getTotalPlayers();
-        // pusherClient.subscribe('channel');
-
-        // return pusherClient.unsubscribe('online_users');
     }, []);
 
     return (

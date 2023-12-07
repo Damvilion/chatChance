@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 // API Route to get the number of online users
 export async function GET(request: Request) {
     const attributes = 'subscription_count,user_count';
-    // All Online users will be subsscribed to this channel
+    // All Online users will subscribe to this channel
     const channels = ['online_users'];
 
     try {
