@@ -7,10 +7,11 @@ const Page = () => {
     const [players, setPlayers] = useState<number | string>(0);
     const getTotalPlayers = async () => {
         const res = await axios.get('/api/getTotalPlayers');
+        console.log(res);
         if (!res) {
             setPlayers('Error finding number of user');
         } else {
-            setPlayers(res.data.channelsInfo.channel.subscription_count);
+            setPlayers(res.data.channelsInfo.online_users.subscription_count);
         }
     };
     pusherClient.subscribe('online_users');
@@ -19,7 +20,7 @@ const Page = () => {
         getTotalPlayers();
         // pusherClient.subscribe('channel');
 
-        return pusherClient.unsubscribe('online_users');
+        // return pusherClient.unsubscribe('online_users');
     }, []);
 
     return (
