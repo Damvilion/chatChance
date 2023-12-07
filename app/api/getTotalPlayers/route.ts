@@ -2,7 +2,7 @@ import { pusherServer } from '@/app/lib/pusher';
 import { NextResponse } from 'next/server';
 
 // API Route to get the number of online users
-export async function GET(request: Request) {
+export async function POST(request: Request) {
     const attributes = 'subscription_count,user_count';
     // All Online users will subscribe to this channel
     const channels = ['online_users'];

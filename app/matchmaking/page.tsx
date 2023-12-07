@@ -2,18 +2,26 @@
 import React, { useEffect, useState } from 'react';
 import { pusherClient } from '@/app/lib/pusher';
 import axios from 'axios';
-import { config } from 'process';
+
+import { getPlayer } from './getPlayers';
 
 const Page = () => {
+    // const helper = async () => {
+    //     const playerNumber = await getPlayer();
+    //     console.log(playerNumber);
+    // };
+    // helper();
     const [players, setPlayers] = useState<number | string>(0);
     const getTotalPlayers = async () => {
-        const res = await axios.get('/api/getTotalPlayers', {
+        const res = await axios.post('/api/getTotalPlayers', {
             headers: {
                 'Cache-Control': 'no-cache',
                 Pragma: 'no-cache',
             },
         });
+
         console.log(res);
+
         if (!res) {
             setPlayers('Error finding number of user');
         } else {
@@ -22,15 +30,15 @@ const Page = () => {
     };
     pusherClient.subscribe('online_users');
 
-    // useEffect(() => {
-    //     getTotalPlayers();
-    // }, []);
+    useEffect(() => {
+        getTotalPlayers();
+    }, []);
 
     return (
         <div>
             <h1>Page</h1>
             <p>There are {players} Online!</p>
-            <button onClick={getTotalPlayers}>Get Players</button>
+            {/* <button onClick={getTotalPlayers}>Get Players</button> */}
         </div>
     );
 };
