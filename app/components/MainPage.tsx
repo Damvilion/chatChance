@@ -1,6 +1,6 @@
 import React from 'react';
 
-const MainPage = ({ pusherClient }: any) => {
+const MainPage = () => {
     const handleClick = () => {};
     return (
         <div className='flex flex-col'>

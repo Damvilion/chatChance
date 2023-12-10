@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     // All Online users will subscribe to this channel
     const channels = ['online_users'];
 
-    const res = await pusherServer.trigger(channels, 'get-total-users', { message: 'Hello World' }, { info: attributes });
+    const res = await pusherServer.trigger(channels, 'get-total-users', { message: 'Getting total users' }, { info: attributes });
 
     if (res.status === 200) {
         const body = await res.json();
@@ -16,13 +16,8 @@ export async function POST(request: Request) {
         return NextResponse.json({
             body,
             channelsInfo,
-            headers: {
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                Pragma: 'no-cache',
-                Expires: '0',
-            },
         });
     } else {
-        return NextResponse.json({ message: 'Failed' });
+        return NextResponse.json({ message: 'Failed', status: 400 });
     }
 }
