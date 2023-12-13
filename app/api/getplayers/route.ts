@@ -1,5 +1,11 @@
 import { NextResponse } from 'next/server';
+import { redisClient } from '@/app/lib/redis';
 
-export async function GET(request: Request) {
-    return NextResponse.json({ message: 'Success' });
+export async function POST(request: Request) {
+    const allUsers = await redisClient.sMembers('online_users');
+
+    return NextResponse.json({
+        message: 'Success',
+        allUsers,
+    });
 }
