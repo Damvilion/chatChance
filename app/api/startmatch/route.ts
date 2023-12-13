@@ -5,7 +5,7 @@ import { pusherServer } from '@/app/lib/pusher';
 export async function POST(request: Request) {
     // Delete all online users
     await redisClient.del('online_users');
-    const channels = ['online_users'];
+    const channels = ['matchmaking'];
     // Validates all users with pusher
     await pusherServer.trigger(channels, 'Validating all Users', { message: 'Getting all current users' });
 
