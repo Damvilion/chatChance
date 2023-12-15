@@ -3,11 +3,12 @@ import { NextResponse } from 'next/server';
 
 // API Route to get the number of online users
 export async function POST(request: Request) {
-    const attributes = 'subscription_count,user_count';
-    // All Online users will subscribe to this channel
+    const data = await request.json();
+    const { socket_id: user1, randomUser: user2 } = data;
+
     const channels = ['online_users'];
 
-    const res = await pusherServer.trigger(channels, 'get-total-users', { message: 'Getting total users' }, { info: attributes });
+    const res = await pusherServer.trigger(channels, 'match_found', { user1, user2 });
 
     if (res.status === 200) {
         const body = await res.json();
