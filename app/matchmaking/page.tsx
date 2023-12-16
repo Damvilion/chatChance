@@ -45,15 +45,6 @@ const Page = () => {
             setPlayers(data.subscription_count);
         });
 
-        channel.bind('match_found', (data: match_found_type) => {
-            if (data.user1 === pusherClient.connection.socket_id || data.user2 === pusherClient.connection.socket_id) {
-                delteFromRedis();
-                pusherClient.unsubscribe('matchmaking');
-                stopMatching();
-                console.log("user1's socket_id: " + data.user1);
-                console.log("user2's socket_id: " + data.user2);
-            }
-        });
         // When a user disconnects from the online_users channel
         pusherClient.connection.bind('disconnected', () => {
             console.log('you have been disconnected');
@@ -77,6 +68,17 @@ const Page = () => {
             });
         });
 
+        matching.bind('match_found', (data: match_found_type) => {
+            console.log('match found');
+            if (data.user1 === pusherClient.connection.socket_id || data.user2 === pusherClient.connection.socket_id) {
+                delteFromRedis();
+                pusherClient.unsubscribe('matchmaking');
+                stopMatching();
+                console.log("user1's socket_id: " + data.user1);
+                console.log("user2's socket_id: " + data.user2);
+            }
+        });
+
         const findMatch = async () => {
             if (matchmaking) {
                 const Users = await axios.post('/api/matchmaking/getplayers');
@@ -86,18 +88,19 @@ const Page = () => {
                 if (ALL_USERS.length < 2) {
                     console.log('Not enough players');
                 } else {
+                    console.log('finding valid match');
                     // Matchmake them
                     const randomUser = ALL_USERS[Math.floor(Math.random() * ALL_USERS.length)];
-                    if (randomUser !== pusherClient.connection.socket_id) {
-                        pusherClient.unsubscribe('matchmaking');
-                        setMatchmaking(false);
-                        setLoading(false);
+                    if (randomUser !== pusherClient.connection.socket_id && randomUser > 80) {
                         // MATCH FOUND
                         // Send a post request to the server to trigger pusherjs to send a match_found event
                         await axios.post('/api/matchmaking/messageConnectedUsers', {
                             socket_id: pusherClient.connection.socket_id,
                             randomUser: randomUser,
                         });
+                        pusherClient.unsubscribe('matchmaking');
+                        setMatchmaking(false);
+                        setLoading(false);
                     }
                 }
             }
