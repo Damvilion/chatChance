@@ -2,24 +2,36 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { pusherClient } from '@/app/lib/pusher';
 import axios from 'axios';
+// Live Kit imports
+import '@livekit/components-styles';
+import { LiveKitRoom, VideoConference, GridLayout, ParticipantTile } from '@livekit/components-react';
+import VideoRoom from '@/app/components/VideoRoom';
+// UUId
+import { v4 as uuidv4 } from 'uuid';
 
 const Page = () => {
     const [players, setPlayers] = useState<number | string>(0);
     const [loading, setLoading] = useState<boolean>(false);
     const [matchmaking, setMatchmaking] = useState<boolean>(false);
+    const [matched_user, setMatched_user] = useState<string>('');
+    const [room, setRoom] = useState<string>(uuidv4());
+
     // intervalID is used as a reference to the setInterval function
+
     let intervalID = useRef<NodeJS.Timeout | null>(null);
 
-    const logChannels = () => {
-        console.log(pusherClient.channels.channels);
-    };
-
-    const addToRedis = async () => {
-        console.log('adding to redis');
-        await axios.post('/api/matchmaking/updateRedis', {
-            socket_id: pusherClient.connection.socket_id,
-        });
-    };
+    // Initialize LiveKit Connection
+    useEffect(() => {
+        (async () => {
+            try {
+                const resp = await fetch(`/api/get-participant-token?room=${room}&username=initial`);
+                const data = await resp.json();
+                setToken(data.token);
+            } catch (e) {
+                console.error(e);
+            }
+        })();
+    }, []);
 
     // This function is used to stop the matchmaking process
     const stopMatching = () => {
@@ -69,13 +81,17 @@ const Page = () => {
         });
 
         matching.bind('match_found', (data: match_found_type) => {
-            console.log('match found');
             if (data.user1 === pusherClient.connection.socket_id || data.user2 === pusherClient.connection.socket_id) {
+                setRoom(data.room);
+                connectToRoom();
                 delteFromRedis();
-                pusherClient.unsubscribe('matchmaking');
                 stopMatching();
-                console.log("user1's socket_id: " + data.user1);
-                console.log("user2's socket_id: " + data.user2);
+                pusherClient.unsubscribe('matchmaking');
+                if (data.user1 === pusherClient.connection.socket_id) {
+                    setMatched_user(data.user2);
+                } else {
+                    setMatched_user(data.user1);
+                }
             }
         });
 
@@ -97,6 +113,7 @@ const Page = () => {
                         await axios.post('/api/matchmaking/messageConnectedUsers', {
                             socket_id: pusherClient.connection.socket_id,
                             randomUser: randomUser,
+                            room: uuidv4(),
                         });
                         pusherClient.unsubscribe('matchmaking');
                         setMatchmaking(false);
@@ -126,32 +143,71 @@ const Page = () => {
         // Matchmaking has started | This will continue to run until a match is found
     };
 
-    const logSocketID = () => {
-        console.log(pusherClient.connection.socket_id);
+    // LIVE KIT
+    const [token, setToken] = useState('');
+
+    const connectToRoom = async () => {
+        setConnectToLiveKit(false);
+        try {
+            const resp = await fetch(`/api/get-participant-token?room=${room}&username=${pusherClient.connection.socket_id}`);
+            const data = await resp.json();
+            setConnectToLiveKit(true);
+            setToken(data.token);
+        } catch (e) {
+            console.error(e);
+        }
     };
 
+    const logRoom = () => {
+        console.log(room);
+    };
+
+    // Manual Connection
+    const [fakeRoom, setFakeRoom] = useState<string>('1');
+    const [connectToLiveKit, setConnectToLiveKit] = useState<boolean>(true);
+
+    const forceConnection = async () => {
+        console.log('forcing connection, room: ', +fakeRoom);
+        setConnectToLiveKit(false);
+        try {
+            const resp = await fetch(`/api/get-participant-token?room=${fakeRoom}&username=${pusherClient.connection.socket_id}`);
+            const data = await resp.json();
+            setConnectToLiveKit(true);
+            setToken(data.token);
+        } catch (e) {
+            console.error(e);
+        }
+    };
     return (
         <div>
-            <h1>Page</h1>
-            <div className='flex flex-col gap-4 justify-center items-center'>
-                {players}
-                <button className={`${loading ? 'bg-slate-500' : 'bg-blue-400'} p-3 rounded-lg`} onClick={startmatch}>
-                    Start Match
-                </button>
-                <button className='bg-red-500 p-3 rounded-lg' onClick={logSocketID}>
-                    Log Socket_id
-                </button>
-                <button className='bg-red-500 p-3 rounded-lg' onClick={stopMatching}>
-                    stop matching
-                </button>
-                <button className='bg-teal-500 p-3 rounded-lg' onClick={logChannels}>
-                    log Channels
-                </button>
+            <LiveKitRoom
+                video={true}
+                audio={true}
+                token={token}
+                connect={connectToLiveKit}
+                serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
+                data-lk-theme='default'
+                style={{ height: '50dvh' }}>
+                <div className='flex flex-col items-start gap-3 mt-5'>
+                    <VideoRoom key={room} matched_user={matched_user} />
+                    <div className='flex gap-4 justify-center items-end'>
+                        <button className='bg-red-500 p-3 rounded-lg' onClick={stopMatching}>
+                            stop matching
+                        </button>
+                        <button className={`${loading ? 'bg-slate-500' : 'bg-blue-400'} p-3 rounded-lg`} onClick={startmatch}>
+                            Start Match
+                        </button>
+                        <button className='bg-green-500 p-3 rounded-lg' onClick={logRoom}>
+                            Log room
+                        </button>
+                    </div>
 
-                <button className='bg-amber-300 p-3 rounded-lg' onClick={addToRedis}>
-                    add to redis
-                </button>
-            </div>
+                    <input type='text' name='' id='' onChange={(e) => setFakeRoom(e.target.value)} />
+                    <button className='border-l-orange-800 p-3 rounded-lg' onClick={forceConnection}>
+                        Force Connection
+                    </button>
+                </div>
+            </LiveKitRoom>
         </div>
     );
 };
