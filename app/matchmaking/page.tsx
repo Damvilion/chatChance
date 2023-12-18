@@ -10,11 +10,14 @@ import VideoRoom from '@/app/components/VideoRoom';
 import { v4 as uuidv4 } from 'uuid';
 
 const Page = () => {
+    // Live Players
     const [players, setPlayers] = useState<number | string>(0);
+
     const [loading, setLoading] = useState<boolean>(false);
     const [matchmaking, setMatchmaking] = useState<boolean>(false);
     const [matched_user, setMatched_user] = useState<string>('');
-    const [room, setRoom] = useState<string>(uuidv4());
+    // const [room, setRoom] = useState<string>(uuidv4());
+    const startingRoom = uuidv4();
 
     // intervalID is used as a reference to the setInterval function
 
@@ -24,7 +27,7 @@ const Page = () => {
     useEffect(() => {
         (async () => {
             try {
-                const resp = await fetch(`/api/get-participant-token?room=${room}&username=initial`);
+                const resp = await fetch(`/api/get-participant-token?room=${startingRoom}&username=initial`);
                 const data = await resp.json();
                 setToken(data.token);
             } catch (e) {
@@ -82,8 +85,8 @@ const Page = () => {
 
         matching.bind('match_found', (data: match_found_type) => {
             if (data.user1 === pusherClient.connection.socket_id || data.user2 === pusherClient.connection.socket_id) {
-                setRoom(data.room);
-                connectToRoom();
+                const roomName = data.room;
+                connectToRoom(roomName);
                 delteFromRedis();
                 stopMatching();
                 pusherClient.unsubscribe('matchmaking');
@@ -110,12 +113,14 @@ const Page = () => {
                     if (randomUser !== pusherClient.connection.socket_id && randomUser > 80) {
                         // MATCH FOUND
                         // Send a post request to the server to trigger pusherjs to send a match_found event
+                        pusherClient.unsubscribe('matchmaking');
+                        const room = uuidv4();
+                        connectToRoom(room);
                         await axios.post('/api/matchmaking/messageConnectedUsers', {
                             socket_id: pusherClient.connection.socket_id,
                             randomUser: randomUser,
-                            room: uuidv4(),
+                            room,
                         });
-                        pusherClient.unsubscribe('matchmaking');
                         setMatchmaking(false);
                         setLoading(false);
                     }
@@ -146,20 +151,18 @@ const Page = () => {
     // LIVE KIT
     const [token, setToken] = useState('');
 
-    const connectToRoom = async () => {
+    const connectToRoom = async (room: string) => {
         setConnectToLiveKit(false);
         try {
             const resp = await fetch(`/api/get-participant-token?room=${room}&username=${pusherClient.connection.socket_id}`);
             const data = await resp.json();
-            setConnectToLiveKit(true);
-            setToken(data.token);
+            if (data) {
+                setConnectToLiveKit(true);
+                setToken(data.token);
+            }
         } catch (e) {
             console.error(e);
         }
-    };
-
-    const logRoom = () => {
-        console.log(room);
     };
 
     // Manual Connection
@@ -189,16 +192,13 @@ const Page = () => {
                 data-lk-theme='default'
                 style={{ height: '50dvh' }}>
                 <div className='flex flex-col items-start gap-3 mt-5'>
-                    <VideoRoom key={room} matched_user={matched_user} />
+                    <VideoRoom matched_user={matched_user} />
                     <div className='flex gap-4 justify-center items-end'>
                         <button className='bg-red-500 p-3 rounded-lg' onClick={stopMatching}>
                             stop matching
                         </button>
                         <button className={`${loading ? 'bg-slate-500' : 'bg-blue-400'} p-3 rounded-lg`} onClick={startmatch}>
                             Start Match
-                        </button>
-                        <button className='bg-green-500 p-3 rounded-lg' onClick={logRoom}>
-                            Log room
                         </button>
                     </div>
 
