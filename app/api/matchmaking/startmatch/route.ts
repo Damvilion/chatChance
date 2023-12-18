@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { redisClient } from '@/app/lib/redis';
 import { pusherServer } from '@/app/lib/pusher';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function POST(request: Request) {
     // Delete all previous online users
     await redisClient.del('online_users');
