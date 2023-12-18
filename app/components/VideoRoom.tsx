@@ -10,9 +10,10 @@ interface VideoRoomProps {
 
 const VideoRoom = ({ matched_user }: VideoRoomProps) => {
     const trackRefs = useTracks([Track.Source.Camera]);
+    // const audioTrack = useTracks([Track.Source.Microphone]);
     const cameraTracks = trackRefs[0];
     const user2CameraTrack = trackRefs[1] ? trackRefs[1] : null;
-    console.log(trackRefs);
+
     const logMatchedUser = () => {
         console.log('matched user: ', matched_user);
     };
