@@ -8,6 +8,7 @@ import { LiveKitRoom, VideoConference, GridLayout, ParticipantTile } from '@live
 import VideoRoom from '@/app/components/VideoRoom';
 // UUId
 import { v4 as uuidv4 } from 'uuid';
+import { init } from 'next/dist/compiled/webpack/webpack';
 
 const Page = () => {
     // Live Players
@@ -16,24 +17,29 @@ const Page = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [matchmaking, setMatchmaking] = useState<boolean>(false);
     const [matched_user, setMatched_user] = useState<string>('');
-    // const [room, setRoom] = useState<string>(uuidv4());
+
     const startingRoom = uuidv4();
+
+    // This state is used to determine whether or not to connect to the LiveKit Room
+    const [connectToLiveKit, setConnectToLiveKit] = useState<boolean>(true);
 
     // intervalID is used as a reference to the setInterval function
 
     let intervalID = useRef<NodeJS.Timeout | null>(null);
 
     // Initialize LiveKit Connection
+    const init = async () => {
+        try {
+            const resp = await fetch(`/api/get-participant-token?room=${uuidv4()}&username=initial`);
+            const data = await resp.json();
+            setConnectToLiveKit(true);
+            setToken(data.token);
+        } catch (e) {
+            console.error(e);
+        }
+    };
     useEffect(() => {
-        (async () => {
-            try {
-                const resp = await fetch(`/api/get-participant-token?room=${startingRoom}&username=initial`);
-                const data = await resp.json();
-                setToken(data.token);
-            } catch (e) {
-                console.error(e);
-            }
-        })();
+        init();
     }, []);
 
     // This function is used to stop the matchmaking process
@@ -42,8 +48,8 @@ const Page = () => {
         setLoading(false);
         clearInterval(intervalID.current!);
         pusherClient.unsubscribe('matchmaking');
-        console.log('unsubscribed from matchmaking channel');
     };
+
     // This function is used to delete the user from the redis database
     const delteFromRedis = async () => {
         await axios.post('/api/matchmaking/deleteFromRedis', { socket_id: pusherClient.connection.socket_id });
@@ -110,7 +116,7 @@ const Page = () => {
                     console.log('finding valid match');
                     // Matchmake them
                     const randomUser = ALL_USERS[Math.floor(Math.random() * ALL_USERS.length)];
-                    if (randomUser !== pusherClient.connection.socket_id && randomUser > 80) {
+                    if (randomUser !== pusherClient.connection.socket_id) {
                         // MATCH FOUND
                         // Send a post request to the server to trigger pusherjs to send a match_found event
                         pusherClient.unsubscribe('matchmaking');
@@ -121,6 +127,7 @@ const Page = () => {
                             randomUser: randomUser,
                             room,
                         });
+                        delteFromRedis();
                         setMatchmaking(false);
                         setLoading(false);
                     }
@@ -148,6 +155,16 @@ const Page = () => {
         // Matchmaking has started | This will continue to run until a match is found
     };
 
+    // This function is used to disconnnect from livekit and stop the matchmaking process
+    const stopAllMatching = () => {
+        setMatchmaking(false);
+        setLoading(false);
+        setConnectToLiveKit(false);
+        clearInterval(intervalID.current!);
+        pusherClient.unsubscribe('matchmaking');
+        init();
+    };
+
     // LIVE KIT
     const [token, setToken] = useState('');
 
@@ -166,21 +183,20 @@ const Page = () => {
     };
 
     // Manual Connection
-    const [fakeRoom, setFakeRoom] = useState<string>('1');
-    const [connectToLiveKit, setConnectToLiveKit] = useState<boolean>(true);
+    // const [fakeRoom, setFakeRoom] = useState<string>('1');
 
-    const forceConnection = async () => {
-        console.log('forcing connection, room: ', +fakeRoom);
-        setConnectToLiveKit(false);
-        try {
-            const resp = await fetch(`/api/get-participant-token?room=${fakeRoom}&username=${pusherClient.connection.socket_id}`);
-            const data = await resp.json();
-            setConnectToLiveKit(true);
-            setToken(data.token);
-        } catch (e) {
-            console.error(e);
-        }
-    };
+    // const forceConnection = async () => {
+    //     console.log('forcing connection, room: ', +fakeRoom);
+    //     setConnectToLiveKit(false);
+    //     try {
+    //         const resp = await fetch(`/api/get-participant-token?room=${fakeRoom}&username=${pusherClient.connection.socket_id}`);
+    //         const data = await resp.json();
+    //         setConnectToLiveKit(true);
+    //         setToken(data.token);
+    //     } catch (e) {
+    //         console.error(e);
+    //     }
+    // };
     return (
         <div>
             <LiveKitRoom
@@ -194,7 +210,7 @@ const Page = () => {
                 <div className='flex flex-col items-start gap-3 mt-5'>
                     <VideoRoom matched_user={matched_user} />
                     <div className='flex gap-4 justify-center items-end'>
-                        <button className='bg-red-500 p-3 rounded-lg' onClick={stopMatching}>
+                        <button className='bg-red-500 p-3 rounded-lg' onClick={stopAllMatching}>
                             stop matching
                         </button>
                         <button className={`${loading ? 'bg-slate-500' : 'bg-blue-400'} p-3 rounded-lg`} onClick={startmatch}>
@@ -202,10 +218,10 @@ const Page = () => {
                         </button>
                     </div>
 
-                    <input type='text' name='' id='' onChange={(e) => setFakeRoom(e.target.value)} />
+                    {/* <input type='text' name='' id='' onChange={(e) => setFakeRoom(e.target.value)} />
                     <button className='border-l-orange-800 p-3 rounded-lg' onClick={forceConnection}>
                         Force Connection
-                    </button>
+                    </button> */}
                 </div>
             </LiveKitRoom>
         </div>
