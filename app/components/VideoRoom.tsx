@@ -1,7 +1,7 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import '@livekit/components-styles';
-import { LiveKitRoom, VideoConference, GridLayout, ParticipantTile, useTracks, VideoTrack } from '@livekit/components-react';
+import { useTracks, VideoTrack } from '@livekit/components-react';
 import { Track } from 'livekit-client';
 
 interface VideoRoomProps {
