@@ -1,4 +1,4 @@
-interface match_found_type {
+export interface match_found_type {
     user1: string;
     user2: string;
     room: string;
