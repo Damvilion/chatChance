@@ -4,28 +4,26 @@ import { pusherClient } from '@/app/lib/pusher';
 import axios from 'axios';
 // Live Kit imports
 import '@livekit/components-styles';
-import { LiveKitRoom, VideoConference, GridLayout, ParticipantTile } from '@livekit/components-react';
+import { LiveKitRoom } from '@livekit/components-react';
 import VideoRoom from '@/app/components/VideoRoom';
 // UUId
 import { v4 as uuidv4 } from 'uuid';
-import { init } from 'next/dist/compiled/webpack/webpack';
 
 const Page = () => {
     // Live Players
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [players, setPlayers] = useState<number | string>(0);
 
     const [loading, setLoading] = useState<boolean>(false);
     const [matchmaking, setMatchmaking] = useState<boolean>(false);
     const [matched_user, setMatched_user] = useState<string>('');
 
-    const startingRoom = uuidv4();
-
     // This state is used to determine whether or not to connect to the LiveKit Room
     const [connectToLiveKit, setConnectToLiveKit] = useState<boolean>(true);
 
     // intervalID is used as a reference to the setInterval function
 
-    let intervalID = useRef<NodeJS.Timeout | null>(null);
+    const intervalID = useRef<NodeJS.Timeout | null>(null);
 
     // Initialize LiveKit Connection
     const init = async () => {
@@ -83,7 +81,7 @@ const Page = () => {
         const matching = pusherClient.subscribe('matchmaking');
 
         // Fires a post request when pusherjs validates all users | This updates the redis database
-        matching.bind('Validating all Users', async (data: string) => {
+        matching.bind('Validating all Users', async () => {
             await axios.post('/api/matchmaking/updateRedis', {
                 socket_id: pusherClient.connection.socket_id,
             });
