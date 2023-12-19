@@ -182,7 +182,7 @@ const Page = () => {
     };
 
     return (
-        <div className='flex flex-col md:flex-row   p-1 sm:p-3 md:p-7'>
+        <div className='flex flex-col md:flex-row p-1'>
             <LiveKitRoom
                 video={true}
                 audio={true}
@@ -190,13 +190,10 @@ const Page = () => {
                 connect={connectToLiveKit}
                 serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
                 data-lk-theme='disable'
-                className='h-[500px] w-[500px] flex justify-center sm:max-h-[600px] sn:max-w-[600px] md:max-h-[500px] md:max-w-[500px] lg:max-h-[700px] lg:max-w-[700px] '>
-                <VideoRoom loading={loading} startMatch={startmatch} stopMatching={stopAllMatching} matched_user={matched_user} />
 
-                {/* <input type='text' name='' id='' onChange={(e) => setFakeRoom(e.target.value)} />
-                    <button className='border-l-orange-800 p-3 rounded-lg' onClick={forceConnection}>
-                        Force Connection
-                    </button> */}
+                // className='h-[500px] w-[500px] flex justify-center sm:max-h-[500px] sn:max-w-[500px]  md:max-h-[600px] md:max-w-[600px] lg:max-h-[700px] lg:max-w-[700px]'
+            >
+                <VideoRoom loading={loading} startMatch={startmatch} stopMatching={stopAllMatching} matched_user={matched_user} />
             </LiveKitRoom>
 
             <div className='w-full flex justify-center'>
