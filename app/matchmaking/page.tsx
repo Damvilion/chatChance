@@ -80,7 +80,7 @@ const Page = () => {
             return;
         }
 
-        if (!matchmaking) {
+        if (matchmaking) {
             const matching = pusherClient.subscribe('matchmaking');
 
             // Fires a post request when pusherjs validates all users | This updates the redis database
