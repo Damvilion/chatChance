@@ -80,29 +80,31 @@ const Page = () => {
             return;
         }
 
-        const matching = pusherClient.subscribe('matchmaking');
+        if (!matchmaking) {
+            const matching = pusherClient.subscribe('matchmaking');
 
-        // Fires a post request when pusherjs validates all users | This updates the redis database
-        matching.bind('Validating all Users', async () => {
-            await axios.post('/api/matchmaking/updateRedis', {
-                socket_id: pusherClient.connection.socket_id,
+            // Fires a post request when pusherjs validates all users | This updates the redis database
+            matching.bind('Validating all Users', async () => {
+                await axios.post('/api/matchmaking/updateRedis', {
+                    socket_id: pusherClient.connection.socket_id,
+                });
             });
-        });
 
-        matching.bind('match_found', (data: match_found_type) => {
-            if (data.user1 === pusherClient.connection.socket_id || data.user2 === pusherClient.connection.socket_id) {
-                const roomName = data.room;
-                connectToRoom(roomName);
-                delteFromRedis();
-                stopMatching();
-                pusherClient.unsubscribe('matchmaking');
-                if (data.user1 === pusherClient.connection.socket_id) {
-                    setMatched_user(data.user2);
-                } else {
-                    setMatched_user(data.user1);
+            matching.bind('match_found', (data: match_found_type) => {
+                if (data.user1 === pusherClient.connection.socket_id || data.user2 === pusherClient.connection.socket_id) {
+                    const roomName = data.room;
+                    connectToRoom(roomName);
+                    delteFromRedis();
+                    stopMatching();
+                    pusherClient.unsubscribe('matchmaking');
+                    if (data.user1 === pusherClient.connection.socket_id) {
+                        setMatched_user(data.user2);
+                    } else {
+                        setMatched_user(data.user1);
+                    }
                 }
-            }
-        });
+            });
+        }
 
         const findMatch = async () => {
             if (matchmaking) {
