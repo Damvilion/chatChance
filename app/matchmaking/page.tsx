@@ -181,48 +181,27 @@ const Page = () => {
         }
     };
 
-    // Manual Connection
-    // const [fakeRoom, setFakeRoom] = useState<string>('1');
-
-    // const forceConnection = async () => {
-    //     console.log('forcing connection, room: ', +fakeRoom);
-    //     setConnectToLiveKit(false);
-    //     try {
-    //         const resp = await fetch(`/api/get-participant-token?room=${fakeRoom}&username=${pusherClient.connection.socket_id}`);
-    //         const data = await resp.json();
-    //         setConnectToLiveKit(true);
-    //         setToken(data.token);
-    //     } catch (e) {
-    //         console.error(e);
-    //     }
-    // };
     return (
-        <div>
+        <div className='flex flex-col md:flex-row   p-1 sm:p-3 md:p-7'>
             <LiveKitRoom
                 video={true}
                 audio={true}
                 token={token}
                 connect={connectToLiveKit}
                 serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-                data-lk-theme='default'
-                style={{ height: '50dvh' }}>
-                <div className='flex flex-col items-start gap-3 mt-5'>
-                    <VideoRoom matched_user={matched_user} />
-                    <div className='flex gap-4 justify-center items-end'>
-                        <button className='bg-red-500 p-3 rounded-lg' onClick={stopAllMatching}>
-                            stop matching
-                        </button>
-                        <button className={`${loading ? 'bg-slate-500' : 'bg-blue-400'} p-3 rounded-lg`} onClick={startmatch}>
-                            Start Match
-                        </button>
-                    </div>
+                data-lk-theme='disable'
+                className='h-[500px] w-[500px] flex justify-center sm:max-h-[600px] sn:max-w-[600px] md:max-h-[500px] md:max-w-[500px] lg:max-h-[700px] lg:max-w-[700px] '>
+                <VideoRoom loading={loading} startMatch={startmatch} stopMatching={stopAllMatching} matched_user={matched_user} />
 
-                    {/* <input type='text' name='' id='' onChange={(e) => setFakeRoom(e.target.value)} />
+                {/* <input type='text' name='' id='' onChange={(e) => setFakeRoom(e.target.value)} />
                     <button className='border-l-orange-800 p-3 rounded-lg' onClick={forceConnection}>
                         Force Connection
                     </button> */}
-                </div>
             </LiveKitRoom>
+
+            <div className='w-full flex justify-center'>
+                <h1>CHAT BOX</h1>
+            </div>
         </div>
     );
 };
