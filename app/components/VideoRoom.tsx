@@ -32,20 +32,20 @@ const VideoRoom = ({ matched_user, stopMatching, startMatch, loading }: VideoRoo
             <div className='min-h-[200px] h-[200px] w-[80%] sm:h-[215px] md:h-[350px]'>
                 {user2CameraTrack ? (
                     <VideoTrack
-                        className='object-fit w-full h-full'
+                        className='object-cover w-full h-full'
                         // style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                         trackRef={user2CameraTrack}
                     />
                 ) : (
-                    <video className='object-fit w-full h-full bg-slate-800'></video>
+                    <video className='object-cover w-full h-full bg-slate-800'></video>
                 )}
             </div>
 
             <div className='min-h-[200px] h-[200px] w-[80%] sm:h-[215px] md:h-[350px]'>
                 {cameraTracks ? (
-                    <VideoTrack className='object-fit w-full h-full' trackRef={cameraTracks} />
+                    <VideoTrack className='object-cover w-full h-full' trackRef={cameraTracks} />
                 ) : (
-                    <video className='object-fit w-full h-full bg-slate-800'></video>
+                    <video className='object-cover w-full h-full bg-slate-800'></video>
                 )}
             </div>
 
