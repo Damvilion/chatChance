@@ -12,11 +12,12 @@ import { match_found_type } from '../types/types';
 
 const Page = () => {
     // Live Players
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [players, setPlayers] = useState<number | string>(0);
 
     const [loading, setLoading] = useState<boolean>(false);
     const [matchmaking, setMatchmaking] = useState<boolean>(false);
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [matched_user, setMatched_user] = useState<string>('');
 
     // This state is used to determine whether or not to connect to the LiveKit Room
@@ -71,9 +72,9 @@ const Page = () => {
         });
     }, []);
 
-    // Subscribe to the matchmaking channel | When matchmaking is true | handles matchmaking logic
+    // Handles matchmaking logic | Subscribe to the matchmaking channel When matchmaking is true
     useEffect(() => {
-        // If matchmaking is false | clear the interval
+        // If matchmaking is false | clear the interval | unsubscribe from the matchmaking channel
         if (!matchmaking && intervalID.current) {
             clearInterval(intervalID.current);
             pusherClient.unsubscribe('matchmaking');
@@ -161,6 +162,13 @@ const Page = () => {
     const stopAllMatching = () => {
         setMatchmaking(false);
         setLoading(false);
+        clearInterval(intervalID.current!);
+        pusherClient.unsubscribe('matchmaking');
+    };
+
+    const stopAllMatchingWithLiveKit = () => {
+        setMatchmaking(false);
+        setLoading(false);
         setConnectToLiveKit(false);
         clearInterval(intervalID.current!);
         pusherClient.unsubscribe('matchmaking');
@@ -192,15 +200,17 @@ const Page = () => {
                 token={token}
                 connect={connectToLiveKit}
                 serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-                data-lk-theme='disable'
-
-                // className='h-[500px] w-[500px] flex justify-center sm:max-h-[500px] sn:max-w-[500px]  md:max-h-[600px] md:max-w-[600px] lg:max-h-[700px] lg:max-w-[700px]'
-            >
-                <VideoRoom loading={loading} startMatch={startmatch} stopMatching={stopAllMatching} matched_user={matched_user} />
+                data-lk-theme='disable'>
+                <p className='text-white'>There are {players} players online</p>
+                <VideoRoom
+                    loading={loading}
+                    startMatch={startmatch}
+                    stopAllMatching={stopAllMatching}
+                    stopAllMatchingWithLiveKit={stopAllMatchingWithLiveKit}
+                />
             </LiveKitRoom>
-
             <div className='w-full flex justify-center'>
-                <h1>CHAT BOX</h1>
+                <h1 className='text-red-400'>CHAT BOX</h1>
             </div>
         </div>
     );
