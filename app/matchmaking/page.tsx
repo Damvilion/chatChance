@@ -76,6 +76,7 @@ const Page = () => {
         // If matchmaking is false | clear the interval
         if (!matchmaking && intervalID.current) {
             clearInterval(intervalID.current);
+            pusherClient.unsubscribe('matchmaking');
             return;
         }
 
