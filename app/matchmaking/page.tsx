@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { pusherClient } from '@/app/lib/pusher';
 import axios from 'axios';
 // Live Kit imports
-import '@livekit/components-styles';
+// import '@livekit/components-styles';
 import { LiveKitRoom } from '@livekit/components-react';
 import VideoRoom from '@/app/components/VideoRoom';
 // UUId
@@ -56,6 +56,7 @@ const Page = () => {
     };
     // This useEffect hook is used to subscribe to the online_users channel
     useEffect(() => {
+        getMedia();
         // ALL Users are subscribed to this channel
         const channel = pusherClient.subscribe('online_users');
 
@@ -159,26 +160,36 @@ const Page = () => {
     };
 
     // This function is used to disconnnect from livekit and stop the matchmaking process
-    const stopAllMatching = () => {
+    const stopAllMatching = (withLiveKit: boolean) => {
+        if (withLiveKit) {
+            getMedia();
+            setConnectToLiveKit(false);
+        }
         setMatchmaking(false);
         setLoading(false);
         clearInterval(intervalID.current!);
         pusherClient.unsubscribe('matchmaking');
     };
-
-    const stopAllMatchingWithLiveKit = () => {
-        setMatchmaking(false);
-        setLoading(false);
-        setConnectToLiveKit(false);
-        clearInterval(intervalID.current!);
-        pusherClient.unsubscribe('matchmaking');
-        init();
-    };
-
     // LIVE KIT
+
     const [token, setToken] = useState('');
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [mediaStream, setMediaStream] = React.useState<MediaStream | null>(null);
+
+    const getMedia = async () => {
+        try {
+            const res = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            if (res) {
+                setMediaStream(res);
+                videoRef.current!.srcObject = res;
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
 
     const connectToRoom = async (room: string) => {
+        getMedia();
         setConnectToLiveKit(false);
         try {
             const resp = await fetch(`/api/get-participant-token?room=${room}&username=${pusherClient.connection.socket_id}`);
@@ -186,32 +197,43 @@ const Page = () => {
             if (data) {
                 setConnectToLiveKit(true);
                 setToken(data.token);
+                getMedia();
             }
         } catch (e) {
             console.error(e);
         }
     };
 
+    // const logMediaStream = () => {
+    //     console.log(mediaStream);
+    // };
+
     return (
-        <div className='flex flex-col md:flex-row p-1'>
-            <LiveKitRoom
-                video={true}
-                audio={true}
-                token={token}
-                connect={connectToLiveKit}
-                serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
-                data-lk-theme='disable'>
+        <div className='flex flex-col justify-center items-center lg:flex-row lg:justify-start p-1'>
+            <div className='flex flex-col items-center p-3 gap-5'>
+                <div className='h-[275px] w-[200px] sm:h-[315px] sm:w-[315px] md:min-h-[300px] md:w-[300px] lg:h-[400px] lg:w-[500px]'>
+                    <LiveKitRoom
+                        video={false}
+                        audio={true}
+                        token={token}
+                        connect={connectToLiveKit}
+                        serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}
+                        className='w-full h-full'
+                        data-lk-theme='disable'>
+                        <VideoRoom loading={loading} startMatch={startmatch} stopAllMatching={stopAllMatching} mediaStream={mediaStream} />
+                    </LiveKitRoom>
+                </div>
+                <div className='h-[300px] w-[200px] sm:h-[315px] sm:w-[315px] md:min-h-[300px] md:w-[300px] lg:h-[400px] lg:w-[500px]'>
+                    {mediaStream ? (
+                        <video ref={videoRef} className='object-cover h-full w-full bg-slate-800 rounded-sm' autoPlay></video>
+                    ) : (
+                        <video className='object-cover h-full w-full bg-slate-800 rounded-sm'></video>
+                    )}
+                </div>
+                {/* <input value={input} onChange={(e) => setInput(e.target.value)}></input> */}
                 <p className='text-white'>There are {players} players online</p>
-                <VideoRoom
-                    loading={loading}
-                    startMatch={startmatch}
-                    stopAllMatching={stopAllMatching}
-                    stopAllMatchingWithLiveKit={stopAllMatchingWithLiveKit}
-                />
-            </LiveKitRoom>
-            <div className='w-full flex justify-center'>
-                <h1 className='text-red-400'>CHAT BOX</h1>
             </div>
+            <div className='flex flex-row justify-center'>{/* <Button onClick={() => connectToRoom(input)}>Connect to Room</Button> */}</div>
         </div>
     );
 };
