@@ -8,6 +8,7 @@ export default function Home() {
     const pushToMatchmaking = () => {
         router.push('/matchmaking');
     };
+
     return (
         <main className='flex min-h-screen flex-col items-center justify-center p-24 bg-gray-600 gap-3'>
             <h1>HELLO</h1>
