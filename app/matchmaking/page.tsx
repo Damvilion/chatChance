@@ -224,11 +224,12 @@ const Page = () => {
                     </LiveKitRoom>
                 </div>
                 <div className='h-[300px] w-[200px] sm:h-[315px] sm:w-[315px] md:min-h-[300px] md:w-[300px] lg:h-[400px] lg:w-[500px]'>
-                    {mediaStream ? (
+                    {/* {mediaStream ? (
                         <video ref={videoRef} className='object-cover h-full w-full bg-slate-800 rounded-sm' autoPlay></video>
                     ) : (
                         <video className='object-cover h-full w-full bg-slate-800 rounded-sm'></video>
-                    )}
+                    )} */}
+                    <video ref={videoRef} className='object-cover h-full w-full bg-slate-800 rounded-sm' autoPlay></video>
                 </div>
                 {/* <input value={input} onChange={(e) => setInput(e.target.value)}></input> */}
                 <p className='text-white'>There are {players} players online</p>
