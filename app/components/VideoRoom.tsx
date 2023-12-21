@@ -63,7 +63,7 @@ const VideoRoom = ({ loading, startMatch, stopAllMatching, mediaStream }: VideoR
     // };
 
     return (
-        <div className='w-full h-full'>
+        <div className='w-full h-full flex flex-col'>
             {user2AudioTrack && <AudioTrack trackRef={user2AudioTrack} />}
             {/* <div className='min-h-[200px] h-[200px] w-[80%] sm:h-[215px] md:h-[350px]'> */}
             {user2CameraTrack ? (
