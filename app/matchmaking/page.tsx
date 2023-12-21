@@ -232,9 +232,11 @@ const Page = () => {
                     <video
                         ref={videoRef}
                         className='object-cover h-full w-full bg-slate-800 rounded-sm'
+                        autoPlay
+                        muted
                         autoFocus={false}
                         controls={false}
-                        autoPlay></video>
+                        playsInline></video>
                 </div>
                 {/* <input value={input} onChange={(e) => setInput(e.target.value)}></input> */}
                 <p className='text-white'>There are {players} players online</p>
