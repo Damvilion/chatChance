@@ -67,7 +67,7 @@ const VideoRoom = ({ loading, startMatch, stopAllMatching, mediaStream }: VideoR
             {user2AudioTrack && <AudioTrack trackRef={user2AudioTrack} />}
             {/* <div className='min-h-[200px] h-[200px] w-[80%] sm:h-[215px] md:h-[350px]'> */}
             {user2CameraTrack ? (
-                <VideoTrack className='object-cover w-full h-full rounded-sm' trackRef={user2CameraTrack} />
+                <VideoTrack className='object-cover w-full h-full rounded-sm' controls={false} autoFocus={false} trackRef={user2CameraTrack} />
             ) : (
                 <video className='object-cover w-full h-full rounded-sm bg-slate-800'></video>
             )}
