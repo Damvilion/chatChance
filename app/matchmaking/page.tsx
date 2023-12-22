@@ -42,6 +42,16 @@ const Page = () => {
         init();
     }, []);
 
+    // This function is used to start the matchmaking process
+    const startmatch = async () => {
+        setLoading(true);
+        setMatchmaking(true);
+
+        // API endpoint to validate all users
+        await axios.post('/api/matchmaking/startmatch', {});
+        // Matchmaking has started | This will continue to run until a match is found
+    };
+
     // This function is used to stop the matchmaking process
     const stopMatching = () => {
         setMatchmaking(false);
@@ -149,16 +159,6 @@ const Page = () => {
         };
     }, [matchmaking]);
 
-    // This function is used to start the matchmaking process
-    const startmatch = async () => {
-        setLoading(true);
-        setMatchmaking(true);
-
-        // API endpoint to validate all users
-        await axios.post('/api/matchmaking/startmatch', {});
-        // Matchmaking has started | This will continue to run until a match is found
-    };
-
     // This function is used to disconnnect from livekit and stop the matchmaking process
     const stopAllMatching = (withLiveKit: boolean) => {
         if (withLiveKit) {
@@ -204,10 +204,6 @@ const Page = () => {
         }
     };
 
-    // const logMediaStream = () => {
-    //     console.log(mediaStream);
-    // };
-
     return (
         <div className='flex flex-col justify-center items-center lg:flex-row lg:justify-start p-1'>
             <div className='flex flex-col items-center p-3 gap-5'>
@@ -224,11 +220,6 @@ const Page = () => {
                     </LiveKitRoom>
                 </div>
                 <div className='h-[300px] w-[200px] sm:h-[315px] sm:w-[315px] md:min-h-[300px] md:w-[300px] lg:h-[400px] lg:w-[500px]'>
-                    {/* {mediaStream ? (
-                        <video ref={videoRef} className='object-cover h-full w-full bg-slate-800 rounded-sm' autoPlay></video>
-                    ) : (
-                        <video className='object-cover h-full w-full bg-slate-800 rounded-sm'></video>
-                    )} */}
                     <video
                         ref={videoRef}
                         className='object-cover h-full w-full bg-slate-800 rounded-sm'
@@ -238,10 +229,9 @@ const Page = () => {
                         controls={false}
                         playsInline></video>
                 </div>
-                {/* <input value={input} onChange={(e) => setInput(e.target.value)}></input> */}
+
                 <p className='text-white'>There are {players} players online</p>
             </div>
-            <div className='flex flex-row justify-center'>{/* <Button onClick={() => connectToRoom(input)}>Connect to Room</Button> */}</div>
         </div>
     );
 };

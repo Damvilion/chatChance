@@ -56,16 +56,9 @@ const VideoRoom = ({ loading, startMatch, stopAllMatching, mediaStream }: VideoR
         connect();
     }, [connectionState]);
 
-    // const logTracks = () => {
-    //     console.log('Tracks: ', trackRefs);
-    //     console.log('Audio: ', audioTrack);
-    //     console.log(user2AudioTrack);
-    // };
-
     return (
         <div className='w-full h-full flex flex-col'>
             {user2AudioTrack && <AudioTrack trackRef={user2AudioTrack} />}
-            {/* <div className='min-h-[200px] h-[200px] w-[80%] sm:h-[215px] md:h-[350px]'> */}
             {user2CameraTrack ? (
                 <VideoTrack className='object-cover w-full h-full rounded-sm' controls={false} autoFocus={false} trackRef={user2CameraTrack} />
             ) : (
@@ -82,7 +75,6 @@ const VideoRoom = ({ loading, startMatch, stopAllMatching, mediaStream }: VideoR
                 <Button size='sm' color='secondary' isLoading={loading} onClick={startMatch}>
                     Start Match
                 </Button>
-                {/* <Button onClick={logTracks}>Log Tracks</Button> */}
             </div>
         </div>
     );
